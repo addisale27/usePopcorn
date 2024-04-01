@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Children, useState } from "react";
 
 const tempMovieData = [
   {
@@ -46,25 +46,11 @@ const tempWatchedData = [
     userRating: 9,
   },
 ];
-export default function App() {
-  return (
-    <>
-      <NavBar />
-      <Main />
-    </>
-  );
-}
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
-function NavBar() {
-  return (
-    <nav className="nav-bar">
-      <Logo />
-      <Search />
-      <Numresult />
-    </nav>
-  );
+function NavBar({ children }) {
+  return <nav className="nav-bar">{children}</nav>;
 }
 function Logo() {
   return (
@@ -93,16 +79,10 @@ function Numresult() {
     </p>
   );
 }
-function Main() {
-  return (
-    <main className="main">
-      <ListBox />
-      <WatchedBox />
-    </main>
-  );
+function Main({ children }) {
+  return <main className="main">{children}</main>;
 }
-function ListBox() {
-  const [isOpen1, setIsOpen1] = useState(true);
+function ListBox({ isOpen1, setIsOpen1 }) {
   return (
     <div className="box">
       <button
@@ -113,6 +93,22 @@ function ListBox() {
       </button>
       {isOpen1 && <MovieList />}
     </div>
+  );
+}
+export default function App() {
+  const [isOpen1, setIsOpen1] = useState(true);
+  return (
+    <>
+      <NavBar>
+        <Logo />
+        <Search />
+        <Numresult />
+      </NavBar>
+      <Main>
+        <ListBox isOpen1={isOpen1} setIsOpen1={setIsOpen1} />
+        <WatchedBox />
+      </Main>
+    </>
   );
 }
 function MovieList() {
