@@ -5,7 +5,7 @@ const containerStyle = {
   alignItems: "center",
   gap: "10px",
 };
-const ratingStyle = { display: "flex", gap: "4px" };
+const ratingStyle = { display: "flex" };
 const textStyle = { lineHeight: "1", margin: 0 };
 const starStyle = {
   width: "48px",
@@ -15,10 +15,17 @@ const starStyle = {
 };
 export default function StarRating({ maxRating = 5 }) {
   const [rating, setRating] = useState(0);
+  const [tempRating, setTempRating] = useState(0);
   function handleOnRate(rating) {
     setRating(rating);
   }
-  console.log(rating);
+  function handleMoveIn(temprating) {
+    setTempRating(temprating);
+    console.log(tempRating);
+  }
+  function handleMoveOut() {
+    setTempRating(0);
+  }
   return (
     <div style={containerStyle}>
       <div style={ratingStyle}>
@@ -26,19 +33,26 @@ export default function StarRating({ maxRating = 5 }) {
           <Star
             key={i}
             onRate={() => handleOnRate(i + 1)}
-            full={rating >= i + 1}
+            onMoveIn={() => handleMoveIn(i + 1)}
+            onMoveOut={() => handleMoveOut()}
+            full={tempRating ? tempRating >= i + 1 : rating >= i + 1}
           />
         ))}
       </div>
-      <p style={textStyle}>{rating || ""}</p>
+      <p style={textStyle}>{tempRating || rating || ""}</p>
     </div>
   );
 }
-
-function Star({ onRate, full }) {
+function Star({ onRate, full, onMoveIn, onMoveOut }) {
   console.log(full);
   return (
-    <span style={starStyle} role="button" onClick={onRate}>
+    <span
+      style={starStyle}
+      role="button"
+      onClick={onRate}
+      onMouseEnter={onMoveIn}
+      onMouseLeave={onMoveOut}
+    >
       {full ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
