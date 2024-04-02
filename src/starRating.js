@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const containerStyle = {
   display: "flex",
   alignItems: "center",
@@ -5,27 +7,32 @@ const containerStyle = {
 };
 const ratingStyle = { display: "flex", gap: "4px" };
 const textStyle = { lineHeight: "1", margin: 0 };
-export default function StarRating({ maxRating = 5 }) {
-  return (
-    <div style={containerStyle}>
-      <div style={ratingStyle}>
-        {Array.from({ length: maxRating }, (_, i) => (
-          <Star key={i} />
-        ))}
-      </div>
-      <p style={textStyle}>10</p>
-    </div>
-  );
-}
 const starStyle = {
   width: "48px",
   height: "48px",
   cursor: "pointer",
   display: "block",
 };
-function Star() {
+export default function StarRating({ maxRating = 5 }) {
+  const [rating, setRating] = useState(0);
+  function handleOnRate(rating) {
+    setRating(rating + 1);
+  }
   return (
-    <span style={starStyle} role="button">
+    <div style={containerStyle}>
+      <div style={ratingStyle}>
+        {Array.from({ length: maxRating }, (_, i) => (
+          <Star key={i} onRate={() => handleOnRate(i)} />
+        ))}
+      </div>
+      <p style={textStyle}>{rating || ""}</p>
+    </div>
+  );
+}
+
+function Star({ onRate }) {
+  return (
+    <span style={starStyle} role="button" onClick={onRate}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 20 20"
