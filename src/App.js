@@ -1,4 +1,4 @@
-import { Children, useState } from "react";
+import { Children, useEffect, useState } from "react";
 
 const tempMovieData = [
   {
@@ -50,11 +50,33 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const key = `9b7d736b`;
+const KEY = "9b7d736b";
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
-  fetch(`http://www.omdbapi.com/?apikey=${key}&`);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(``);
+  const query = "inception";
+
+  useEffect(function () {
+    setIsLoading(true);
+    async function fetchMovie() {
+      try {
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+        );
+        if (!res.ok)
+          throw new Error(`Something went wrong with fetching movies`);
+        const data = await res.json();
+        setMovies(data.Search);
+        setIsLoading(false);
+      } catch (err) {
+        console.error(err.message);
+        setError(err.message);
+      }
+    }
+    fetchMovie();
+  }, []);
   return (
     <>
       <NavBar>
@@ -64,7 +86,13 @@ export default function App() {
       </NavBar>
       <Main>
         <Box>
-          <MovieList movies={movies} setMovies={setMovies} />
+          {isLoading ? (
+            <Loader />
+          ) : error ? (
+            <Error message={error} />
+          ) : (
+            <MovieList movies={movies} setMovies={setMovies} />
+          )}
         </Box>
         <Box>
           <WatchedSummary watched={watched} setWatched={setWatched} />
@@ -72,6 +100,17 @@ export default function App() {
         </Box>
       </Main>
     </>
+  );
+}
+function Loader() {
+  return <p className="loader">loading... </p>;
+}
+function Error({ message }) {
+  return (
+    <p className="error">
+      <span>🛑</span>
+      {message}
+    </p>
   );
 }
 function NavBar({ children }) {
