@@ -58,7 +58,6 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const tempQuery = "inception";
-
   useEffect(
     function () {
       async function fetchMovie() {
