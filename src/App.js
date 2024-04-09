@@ -1,5 +1,5 @@
 import { Children, useEffect, useState } from "react";
-
+import StarRating from "./starRating";
 const tempMovieData = [
   {
     imdbID: "tt1375666",
@@ -58,9 +58,9 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  console.log(selectedId);
+
   function handleSelectMovie(id) {
-    setSelectedId(id);
+    setSelectedId((selectedId) => (selectedId === id ? null : id));
   }
   function handleCloseMovie() {
     setSelectedId(null);
@@ -81,7 +81,6 @@ export default function App() {
           if (data.Response === "False")
             throw new Error("This is an error message");
           setMovies(data.Search);
-          console.log(data.Search);
         } catch (err) {
           setError(err.message);
         } finally {
@@ -137,13 +136,72 @@ export default function App() {
 function Loader() {
   return <p className="loader">loading... </p>;
 }
+
 function MovieDetail({ selectedId, onCloseMovie }) {
+  const [movie, setMovie] = useState({});
+  const {
+    Title: title,
+    Year: year,
+    Poster: poster,
+    Runtime: runtime,
+    imdbRating,
+    Plot: plot,
+    Realeased: released,
+    Actors: actors,
+    Director: director,
+    Genre: genre,
+  } = movie;
+  const [rating, setRating] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(
+    function () {
+      async function Detail() {
+        setIsLoading(true);
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+        );
+        const data = await res.json();
+        setMovie(data);
+        setIsLoading(false);
+      }
+      Detail();
+    },
+    [selectedId]
+  );
   return (
-    <div>
-      <button className="btn-back" onClick={onCloseMovie}>
-        &larr;
-      </button>
-      {selectedId}
+    <div className="details">
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              &larr;
+            </button>
+            <img src={poster} alt={`poster of ${title} movie `} />
+            <div className="details-overview">
+              <h2>{title}</h2>
+              <p>
+                {released} &bull; {runtime}
+              </p>
+              <p>{genre}</p>
+              <p>
+                <span>{imdbRating} imdbRating</span>
+              </p>
+            </div>
+          </header>
+          <section>
+            <div className="rating">
+              <StarRating maxRating={10} size={24} />
+            </div>
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring {actors}</p>
+            <p>Directored by {director}</p>
+          </section>
+        </>
+      )}
     </div>
   );
 }
@@ -208,7 +266,6 @@ function MovieList({ movies, setMovies, onSelectMovie }) {
   );
 }
 function Movie({ movie, onSelectMovie }) {
-  console.log(movie);
   return (
     <li onClick={() => onSelectMovie(movie.imdbID)}>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
