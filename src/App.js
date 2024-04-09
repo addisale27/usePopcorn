@@ -100,13 +100,6 @@ export default function App() {
       </NavBar>
       <Main>
         <Box>
-          {/* {{isLoading ? (
-            <Loader />
-          ) : error ? (
-            <Error message={error} />
-          ) : (
-            <MovieList movies={movies} setMovies={setMovies} />
-          )}} */}
           {isLoading && <Loader />}
           {!isLoading && !error && (
             <MovieList movies={movies} setMovies={setMovies} />
