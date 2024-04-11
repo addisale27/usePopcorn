@@ -48,7 +48,7 @@ const tempWatchedData = [
 ];
 
 const average = (arr) =>
-  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+  arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0).toFixed(1);
 
 const KEY = "9b7d736b";
 export default function App() {
@@ -65,6 +65,10 @@ export default function App() {
   function handleCloseMovie() {
     setSelectedId(null);
   }
+  function handleWatchedMovie(movie) {
+    setWatched((watched) => [...watched, movie]);
+  }
+
   useEffect(
     function () {
       async function fetchMovie() {
@@ -121,6 +125,7 @@ export default function App() {
             <MovieDetail
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleWatchedMovie}
             />
           ) : (
             <>
@@ -137,8 +142,9 @@ function Loader() {
   return <p className="loader">loading... </p>;
 }
 
-function MovieDetail({ selectedId, onCloseMovie }) {
+function MovieDetail({ selectedId, onCloseMovie, onAddWatched }) {
   const [movie, setMovie] = useState({});
+  const [userRating, setUserRating] = useState(0);
   const {
     Title: title,
     Year: year,
@@ -151,8 +157,22 @@ function MovieDetail({ selectedId, onCloseMovie }) {
     Director: director,
     Genre: genre,
   } = movie;
-  const [rating, setRating] = useState(0);
+
   const [isLoading, setIsLoading] = useState(false);
+  function handleAdd() {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      runtime: Number(runtime.split(` `).at(0)),
+      poster,
+      title,
+      year,
+      imdbRating: Number(imdbRating),
+      userRating,
+    };
+
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
   useEffect(
     function () {
       async function Detail() {
@@ -192,7 +212,16 @@ function MovieDetail({ selectedId, onCloseMovie }) {
           </header>
           <section>
             <div className="rating">
-              <StarRating maxRating={10} size={24} />
+              <StarRating
+                maxRating={10}
+                size={24}
+                onSetRating={setUserRating}
+              />
+              {userRating > 0 && (
+                <button className="btn-add" onClick={handleAdd}>
+                  + Add to list
+                </button>
+              )}
             </div>
             <p>
               <em>{plot}</em>
@@ -319,8 +348,8 @@ function WatchedMovieList({ watched, setWatched }) {
 function WatchedMovie({ movie }) {
   return (
     <li>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <h3>{movie.title}</h3>
       <div>
         <p>
           <span>⭐️</span>
