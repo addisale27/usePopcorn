@@ -201,6 +201,13 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
     },
     [selectedId]
   );
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `movie | ${title}`;
+    },
+    [title]
+  );
   return (
     <div className="details">
       {isLoading ? (
