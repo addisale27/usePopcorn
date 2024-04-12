@@ -163,7 +163,6 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
   const watchedUserRating = watched.find(
     (mov) => mov.imdbID === selectedId
   )?.userRating;
-  console.log(watchedUserRating);
   const [userRating, setUserRating] = useState(0);
 
   const {
@@ -194,6 +193,19 @@ function MovieDetail({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === `Escape`) onCloseMovie();
+        console.log(`clicked`);
+      }
+      document.addEventListener(`keydown`, callback);
+      return function () {
+        document.removeEventListener(`keydown`, callback);
+      };
+    },
+    [onCloseMovie]
+  );
   useEffect(
     function () {
       async function Detail() {
